@@ -937,6 +937,24 @@ Follow the directions from Section \ref{ram_info} and Section~\ref{soft_append} 
 
 Writing tests that can self-verify with either a pass or fail, rather than ones that require you to open up the wave viewer to manually verify, are preferred, as they will make it easier for you to come back and run these tests later.
 
+\subsubsection{RISC-V Assembly Syntax}
+To write load or store instructions:
+\begin{minted}[breaklines]{asm}
+li x1, 0x10000000
+li x2, 0xdeadbeef
+sw x2, 0(x1)    # Store Reg[x2] at Mem[Reg[x1] + 0]
+sw x2, 4(x1)    # Store Reg[x2] at Mem[Reg[x1] + 4]
+lw x3, 4(x1)    # Load Mem[Reg[x1] + 4] to x3
+\end{minted}
+
+To write branch or jump instructions:
+\begin{minted}[breaklines]{asm}
+loop: addi x1, x1, 1
+j loop                  # Unconditionally jump to 'loop' label
+jal x3, loop            # Jump to 'loop' and link x3
+beq x2, x0, loop        # Branch to 'loop' if Reg[x2] == 0
+\end{minted}
+
 \subsection{BIOS and Programming your CPU}
 \label{bios_info}
 
