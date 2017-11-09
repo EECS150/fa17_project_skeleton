@@ -89,7 +89,7 @@ void take_button_action (uint32_t button_state) {
         else {
             music_tempo = NOTE_HOLD_TIME;
             uwrite_int8s("Music Tempo Reset\r\n");
-            print_music_tempo();  
+            print_music_tempo();
         }
     }
     if (button_state & 0x8) { // West button push

@@ -1109,7 +1109,6 @@ This checkpoint requires a fully functioning three stage RISC-V CPU as described
 \end{center}
 
 \pagebreak
-\iffalse
 \section{I/O Interfacing, FIFOs, AC97 Controller - Checkpoint 2}
 In checkpoint two of this project you will implement a memory mapped I/O interface to user inputs and outputs (push buttons, rotary wheel, LEDs, and switches). To buffer user inputs to your processor you will integrate the FIFO built in lab.
 
@@ -1130,37 +1129,37 @@ This is clearly not feasible as it would starve our processor. We need a way to 
 We'll use the FIFO to buffer user I/O signals for the RISC-V core to consume via memory-mapped I/O. We want to give the processor access to these I/Os:
 
 \begin{itemize}
-	\item Compass pushbuttons
-	\item Rotary wheel spins and the rotary pushbutton
-	\item GPIO LEDs and compass LEDs
-	\item DIP Switches
+  \item Compass pushbuttons
+  \item Rotary wheel spins and the rotary pushbutton
+  \item GPIO LEDs and compass LEDs
+  \item DIP Switches
 \end{itemize}
 
 Here is the new memory map:
 \begin{table}[hbt]
-	\begin{center}
-		\caption{Updated Memory Map with User I/O}
-		\label{mem_map2}
-		\begin{tabular}{l l l l}
-			\toprule
-			\textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
-			\midrule
-			32'h80000000 & UART control & Read & \{30'b0, DataOutValid, DataInReady\} \\
-			32'h80000004 & UART receiver data & Read & \{24'b0, DataOut\} \\
-			32'h80000008 & UART transmitter data & Write & \{24'b0, DataIn\} \\
-			\midrule
-			32'h80000010 & Cycle counter & Read & Total number of cycles \\
-			32'h80000014 & Instruction counter & Read & Number of instructions executed \\
-			32'h80000018 & Reset  counters to 0 & Write & N/A \\
-			\midrule
-			32'h80000020 & GPIO FIFO Empty & Read & \{31'b0, empty\} \\
-			32'h80000024 & GPIO FIFO Read Data & Read & \makecell{ \{24'b0, button\_c, button\_n, button\_e, button\_s,\\ button\_w, rotary\_push, rotary\_event, rotary\_left\} } \\
-			\midrule
-			32'h80000028 & DIP Switches & Read & \{24'b0, GPIO\_DIP[7:0]\} \\
-			\midrule
-			32'h80000030 & GPIO and Compass LEDs & Write & \makecell{ \{19'b0, GPIO\_LED\_C, GPIO\_LED\_N, GPIO\_LED\_E, \\GPIO\_LED\_S, GPIO\_LED\_W, GPIO\_LED[7:0]\} } \\
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{Updated Memory Map with User I/O}
+      \label{mem_map2}
+      \begin{tabular}{l l l l}
+          \toprule
+          \textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
+          \midrule
+          32'h80000000 & UART control & Read & \{30'b0, DataOutValid, DataInReady\} \\
+          32'h80000004 & UART receiver data & Read & \{24'b0, DataOut\} \\
+          32'h80000008 & UART transmitter data & Write & \{24'b0, DataIn\} \\
+          \midrule
+          32'h80000010 & Cycle counter & Read & Total number of cycles \\
+          32'h80000014 & Instruction counter & Read & Number of instructions executed \\
+          32'h80000018 & Reset  counters to 0 & Write & N/A \\
+          \midrule
+          32'h80000020 & GPIO FIFO Empty & Read & \{31'b0, empty\} \\
+          32'h80000024 & GPIO FIFO Read Data & Read & \makecell{ \{24'b0, button\_c, button\_n, button\_e, button\_s,\\ button\_w, rotary\_push, rotary\_event, rotary\_left\} } \\
+          \midrule
+          32'h80000028 & DIP Switches & Read & \{24'b0, GPIO\_DIP[7:0]\} \\
+          \midrule
+          32'h80000030 & GPIO and Compass LEDs & Write & \makecell{ \{19'b0, GPIO\_LED\_C, GPIO\_LED\_N, GPIO\_LED\_E, \\GPIO\_LED\_S, GPIO\_LED\_W, GPIO\_LED[7:0]\} } \\
+      \end{tabular}
+  \end{center}
 \end{table}
 
 We want to use our FIFO for the signals enumerated in the GPIO FIFO Read Data row. On any given clock cycle, when any of the button signals pulse high or if \verb|rotary_event| pulses high, the FIFO should be written to with the status of all the button and rotary encoder signals. The CPU should be able to read the empty signal of the FIFO, and it should be able to read out data from the FIFO with the FIFO's \verb|rd_en| signal controlled by your memory logic.
@@ -1172,10 +1171,10 @@ We have provided a program that you can use to test your FIFO and memory map. It
 
 This program has several commands to help you debug and verify functionality:
 \begin{itemize}
-	\item \verb|read_buttons| - This command will have the CPU read from the GPIO FIFO until it is empty, decode the button presses/rotary wheel data, and print it out.
-	\item \verb|read_switches| - This command will have the CPU read the DIP switches address and will print out the state of the switches.
-	\item \verb|led <data>| - This command will write the \verb|<data>| (32-bits in hex) that you specify to the GPIO and Compass LEDs address.
-	\item \verb|exit| - Jump back into BIOS.
+  \item \verb|read_buttons| - This command will have the CPU read from the GPIO FIFO until it is empty, decode the button presses/rotary wheel data, and print it out.
+  \item \verb|read_switches| - This command will have the CPU read the DIP switches address and will print out the state of the switches.
+  \item \verb|led <data>| - This command will write the \verb|<data>| (32-bits in hex) that you specify to the GPIO and Compass LEDs address.
+  \item \verb|exit| - Jump back into BIOS.
 \end{itemize}
 
 Once you are confident that all the user I/Os are working, move on to the next section.
@@ -1186,17 +1185,17 @@ Copy over your \verb|tone_generator.v| from Lab 5 to the \verb|hardware/src/audi
 We want to give our RISC-V core the ability to set the \verb|tone_switch_period| and the \verb|output_enable| of the tone generator. Here is the addition to the memory map:
 
 \begin{table}[hbt]
-	\begin{center}
-		\caption{Tone Generator Memory Map Additions}
-		\label{mem_map2}
-		\begin{tabular}{l l l l}
-			\toprule
-			\textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
-			\midrule
-			32'h80000034 & Tone Generator Output Enable & Write & \{31'b0, output\_enable\} \\
-			32'h80000038 & Tone Generator Tone Switch Period & Write & \{8'b0, tone\_switch\_period[23:0]\} \\ \bottomrule
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{Tone Generator Memory Map Additions}
+      \label{mem_map2}
+      \begin{tabular}{l l l l}
+          \toprule
+          \textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
+          \midrule
+          32'h80000034 & Tone Generator Output Enable & Write & \{31'b0, output\_enable\} \\
+          32'h80000038 & Tone Generator Tone Switch Period & Write & \{8'b0, tone\_switch\_period[23:0]\} \\ \bottomrule
+      \end{tabular}
+  \end{center}
 \end{table}
 
 Modify \verb|ml505top.v| and \verb|Riscv151.v|. Instantiate the \verb|tone_generator| at the top level and connect \verb|square_wave_out| to the \verb|PIEZO_SPEAKER|. The \verb|output_enable| signal should be connected to the AND of \verb|GPIO_DIP[0]| and the register that's written by the CPU. The \verb|tone| signal should be connected to another register that's written by the CPU via memory mapped I/O.
@@ -1207,10 +1206,10 @@ Modify your CPU to take in and output any signals it needs for this tone generat
 We have provided a program to test your tone generator and its memory map. It can be found in \verb|software/tone_gen_test/|. Compile and run the program just as you did for the \verb|user_io_test|. Make sure the first DIP switch is on. Jal to the program from the BIOS, and you can play with these commands:
 
 \begin{itemize}
-	\item \verb|on| - Flips the output enable register high
-	\item \verb|off| - Flips low the output enable register low
-	\item \verb|tone <tone_switch_period>| - Writes the user specified \verb|tone_switch_period| (32-bits in hex) to the tone switch period address
-	\item \verb|exit| - Jumps back to the BIOS
+  \item \verb|on| - Flips the output enable register high
+  \item \verb|off| - Flips low the output enable register low
+  \item \verb|tone <tone_switch_period>| - Writes the user specified \verb|tone_switch_period| (32-bits in hex) to the tone switch period address
+  \item \verb|exit| - Jumps back to the BIOS
 \end{itemize}
 
 Calculate the \verb|tone_switch_period| for a 440Hz tone with a 50 Mhz clock and try sending the command for that through the test program. Verify that the piezo speaker is buzzing at 440Hz by comparing it to a square wave at the same frequency via a \href{http://onlinetonegenerator.com/}{tone generator}.
@@ -1236,38 +1235,38 @@ To build the \verb|music_streamer| program and place it on your processor, execu
 \begin{minted}[frame=single]{bash}
 make
 coe_to_serial music_streamer.coe 3000a000
-screen $SERIALTTY 115200
+screen \$SERIALTTY 115200
 151> jal 1000a000
 \end{minted}
 
 The \verb|music_streamer| functions exactly like it does in Lab 3, but the state machine that was implemented directly in hardware, is now implemented in software. Here is the state machine diagram for reference:
 
 \begin{center}
-	\begin{tikzpicture}[shorten >=1pt, node distance=10cm,on grid, auto, semithick]
-	\tikzstyle{state} = [draw, very thick, fill=white, rectangle, minimum height=3em, minimum width=7em, node distance=12em, font={\sffamily\bfseries}]
-	\tikzstyle{stateEdgePortion} = [black,thick];
-	\tikzstyle{stateEdge} = [stateEdgePortion,->];
-	\tikzstyle{edgeLabel} = [pos=0.5, text centered, font={\sffamily\small}];
-	
-	\node[state,initial](rp) {REGULAR\_PLAY};
-	\node[state](revp) [below =of rp]{REVERSE\_PLAY};
-	\node[state](p) [right=of rp]{PAUSED};
-	\node[state](playseq) [above=of rp]{PLAY\_SEQ};
-	\node[state](editseq) [left=of rp]{EDIT\_SEQ};
-	
-	\path[->]
-	(playseq) edge node [swap] {Center} (p)
-	edge node [swap] {South} (editseq)
-	edge node {} (rp)
-	(editseq) edge node {} (playseq)
-	(rp) edge node {Center} (p)
-	edge [swap] node {South} (revp)
-	edge node {North} (playseq)
-	(p) edge node {} (rp)
-	edge [bend right, swap] node {North} (playseq)
-	(revp) edge [swap] node {Center} (p)
-	edge [swap] node {} (rp);
-	\end{tikzpicture}
+  \begin{tikzpicture}[shorten >=1pt, node distance=10cm,on grid, auto, semithick]
+  \tikzstyle{state} = [draw, very thick, fill=white, rectangle, minimum height=3em, minimum width=7em, node distance=12em, font={\sffamily\bfseries}]
+  \tikzstyle{stateEdgePortion} = [black,thick];
+  \tikzstyle{stateEdge} = [stateEdgePortion,->];
+  \tikzstyle{edgeLabel} = [pos=0.5, text centered, font={\sffamily\small}];
+
+  \node[state,initial](rp) {REGULAR\_PLAY};
+  \node[state](revp) [below =of rp]{REVERSE\_PLAY};
+  \node[state](p) [right=of rp]{PAUSED};
+  \node[state](playseq) [above=of rp]{PLAY\_SEQ};
+  \node[state](editseq) [left=of rp]{EDIT\_SEQ};
+
+  \path[->]
+  (playseq) edge node [swap] {Center} (p)
+  edge node [swap] {South} (editseq)
+  edge node {} (rp)
+  (editseq) edge node {} (playseq)
+  (rp) edge node {Center} (p)
+  edge [swap] node {South} (revp)
+  edge node {North} (playseq)
+  (p) edge node {} (rp)
+  edge [bend right, swap] node {North} (playseq)
+  (revp) edge [swap] node {Center} (p)
+  edge [swap] node {} (rp);
+  \end{tikzpicture}
 \end{center}
 
 The program will print out information as you transition the state machine, edit notes in the sequencer, and modify the tempo.
@@ -1283,24 +1282,24 @@ Then, if needed, modify your AC97 controller to fetch PCM samples from the async
 After modifying your controller for the new design specs, instantiate it in \verb|ml505top.v|, hook it up to an instance of the async FIFO, and hook the FIFO's write interface into the RISC-V core. Here is the memory map:
 
 \begin{table}[hbt]
-	\begin{center}
-		\caption{AC97 Controller Memory Map}
-		\begin{tabular}{l l l l}
-			\toprule
-			\textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
-			\midrule
-			32'h80000040 & AC97 FIFO Status & Read & \{31'b0, AC97 FIFO full\} \\
-			32'h80000044 & AC97 FIFO Send Sample & Write & \{12'b0, AC97 FIFO din[19:0]\} \\
-			32'h80000048 & AC97 Volume Control & Write & \{28'b0, volume\_control[3:0]\}\\
-			\bottomrule
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{AC97 Controller Memory Map}
+      \begin{tabular}{l l l l}
+          \toprule
+          \textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
+          \midrule
+          32'h80000040 & AC97 FIFO Status & Read & \{31'b0, AC97 FIFO full\} \\
+          32'h80000044 & AC97 FIFO Send Sample & Write & \{12'b0, AC97 FIFO din[19:0]\} \\
+          32'h80000048 & AC97 Volume Control & Write & \{28'b0, volume\_control[3:0]\}\\
+          \bottomrule
+      \end{tabular}
+  \end{center}
 \end{table}
 
 You will notice that you should add a memory mapped register so that the CPU can control the volume. You should be cautious here since metastability issues may arise as the volume control register is clocked by the system clock and is read by the \verb|bit_clk|. In this instance, you can not worry about adding synchronizer elements due to the volume control register changing very infrequently, but this is something to keep in mind.
 
 \subsubsection{AC97 Controller Integration Testbench}
-An integration testbench has been provided in \verb|/hardware/src/testbenches/ac97_integration_testbench.v|. The software for this testbench is in \verb|/software/ac97_integration_tb/ac97_integration_tb.c|. 
+An integration testbench has been provided in \verb|/hardware/src/testbenches/ac97_integration_testbench.v|. The software for this testbench is in \verb|/software/ac97_integration_tb/ac97_integration_tb.c|.
 
 This testbench performs an end-to-end check of your AC97 controller, the CPU's AC97 FIFO memory map, and the async FIFO. It verifies that all parts of your system can successfully communicate with each other and pass data along. If you look at the software, you will see that the testbench involves sending the PCM samples -50, -49, ..., 49, 50 to the async FIFO, which should then be read and transmitted to the codec by the AC97 controller.
 
@@ -1325,7 +1324,7 @@ You might have to turn up the volume on your headphones or speakers to hear the 
 \subsection{EECS 251A Project Extension - AC97 Mic Input}
 \textbf{If anyone in your project group is taking the graduate version of this course, your group will be required to do this section.} This section is optional for project groups where everyone is an undergraduate.
 
-Extend your AC97 controller to be able to read PCM samples from the codec. This is useful if you have a mic connected to the mic jack on the ML505 board and you want to be able to process the input signal. 
+Extend your AC97 controller to be able to read PCM samples from the codec. This is useful if you have a mic connected to the mic jack on the ML505 board and you want to be able to process the input signal.
 
 To do this, you will want to write some other registers on the AC97 codec to enable the mic input. Specifically, you have to write to the Mic Volume Register (0x0E), Record Select Control Register (0x1A), and the Record Gain Register (0x1C). Take a look at the details in the AD1981B Datasheet in \verb|labs_fa17/docs|.
 
@@ -1334,17 +1333,17 @@ In addition to enabling the mic input, you will have to modify your AC97 control
 You will then need to create another async FIFO instance, but this time with the read interface connected to the CPU and the write interface connected to the AC97 controller. Add ports to your AC97 controller that give it access to the write side of the async FIFO. On every valid AC97 frame, your AC97 controller should write one mic sample to the async FIFO. The processor should be able to access the read interface of the FIFO with the following memory map extensions:
 
 \begin{table}[hbt]
-	\begin{center}
-		\caption{AC97 Controller Memory Map}
-		\begin{tabular}{l l l l}
-			\toprule
-			\textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
-			\midrule
-			32'h80000050 & AC97 Mic FIFO Status & Read & \{31'b0, empty\} \\
-			32'h80000054 & AC97 Mic FIFO Receive Sample & Read & \{12'b0, dout[19:0]\} \\
-			\bottomrule
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{AC97 Controller Memory Map}
+      \begin{tabular}{l l l l}
+          \toprule
+          \textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
+          \midrule
+          32'h80000050 & AC97 Mic FIFO Status & Read & \{31'b0, empty\} \\
+          32'h80000054 & AC97 Mic FIFO Receive Sample & Read & \{12'b0, dout[19:0]\} \\
+          \bottomrule
+      \end{tabular}
+  \end{center}
 \end{table}
 
 To finish this section, you will have to write a small C program (very similar to \verb|echo|) that will fetch samples from the AC97 mic FIFO and push the same samples into the AC97 headphone (audio out) FIFO. The program should do this continuously. You should be able to plug in a mic and a pair of headphones and listen to the mic input through your headphones.
@@ -1352,31 +1351,31 @@ To finish this section, you will have to write a small C program (very similar t
 \subsection{Checkpoint 2 Deliverables Summary}
 
 \begin{center}
-	\begin{tabular}{m{30mm} m{35mm} m{70mm}}
-		\toprule
-		\textbf{Deliverable} & \textbf{Due Date} & \textbf{Description} \\
-		\midrule
-		User I/O + FIFOs + AC97 Controller & \audioDueDate \space - In lab checkoff & Demonstrate the working user IO test program and the music streamer program. Explain your testing methodology for the FIFOs and any system level integration testbenches you created. Demonstrate the piano program. \textbf{EECS251A only}: demonstrate mic input to headphone output program. \\
-		\bottomrule
-	\end{tabular}
+  \begin{tabular}{m{30mm} m{35mm} m{70mm}}
+      \toprule
+      \textbf{Deliverable} & \textbf{Due Date} & \textbf{Description} \\
+      \midrule
+      User I/O + FIFOs + AC97 Controller & \audioDueDate \space - In lab checkoff & Demonstrate the working user IO test program and the music streamer program. Explain your testing methodology for the FIFOs and any system level integration testbenches you created. Demonstrate the piano program. \textbf{EECS251A only}: demonstrate mic input to headphone output program. \\
+      \bottomrule
+  \end{tabular}
 \end{center}
 
 \pagebreak
-
+\iffalse
 \section{Checkpoint 3 - I2C Master Controller + Video Controller}
 In checkpoint three of this project, you will implement a memory mapped I/O interface to a provided I2C master. This will give us access to all I2C devices on the FPGA, including the video controller. Writing to the video controller will allow us to display demo color bars on our VGA output.
 
 We will then build a controller module to handle the Chrontel CH7301C DVI Transmitter Device on our FPGA. This controller will supply the clock timing and logic, allowing us to produce images on our VGA output. We will also generate another block ram to serve as our frame buffer.
- 
+
 Finally, we build a simple arbiter and a graphics accelerator that implements the Bresenham line algorithm. This dedicated hardware block will rapidly write to the frame buffer, bypassing the CPU. The arbiter will prioritize the accelerator writes over the CPU writes.
- 
+
 Get started by pulling the latest skeleton files from the staff repository: \verb|git pull staff master|.
 
 Here is a block diagram of our entire FPGA design. You should recognize the parts you have already built. It will be helpful to refer back to this to see how things ought to integrate.
 
 \begin{figure}[H]
-	\includegraphics[width=\textwidth]{EECS151_Project_Block_Diagram.png}
-	\caption{Block Diagram of Entire EECS151 Project, dashed blue line indicates boundary of ml505top}
+  \includegraphics[width=\textwidth]{EECS151_Project_Block_Diagram.png}
+  \caption{Block Diagram of Entire EECS151 Project, dashed blue line indicates boundary of ml505top}
 \end{figure}
 
 \subsection{I2C}
@@ -1384,13 +1383,13 @@ While you will not be implementing an I2C controller, it is helpful to have a br
 
 \begin{figure}[hbt]
 \begin{center}
-	\includegraphics[width=4in]{I2C_example}
-	\caption{Example of a multi-master I2C configuration}
-	\label{fig:i2c_overview}
+  \includegraphics[width=4in]{I2C_example}
+  \caption{Example of a multi-master I2C configuration}
+  \label{fig:i2c_overview}
 \end{center}
 \end{figure}
 
-Inter IC or I2C is a simple bidirectional 2-wire serial bus designed by Philips Semiconductor and is a de facto international standard. Multiple devices can connect to the same bus and act as masters or slaves. Unlike the ready-valid interface that we have been using, I2C  reduces the physical complexity of the bus while maintaining flexibility and interoperability. 
+Inter IC or I2C is a simple bidirectional 2-wire serial bus designed by Philips Semiconductor and is a de facto international standard. Multiple devices can connect to the same bus and act as masters or slaves. Unlike the ready-valid interface that we have been using, I2C  reduces the physical complexity of the bus while maintaining flexibility and interoperability.
 
 The two I2C wires are a data line \verb|SDA| and a clock line \verb|SCL|. Any master device may generate a clock and send data over these shared lines, and the data is free for any device to interpret. The intended slave device will have a specific address encoded, which is used to direct the transaction. The slave also sends acknowledgments back to the master after every byte of data to confirm integrity.
 
@@ -1399,29 +1398,29 @@ Note that having a shared bus with multiple masters can lead to data collisions 
 In the simplest terms, an I2C transactions contains 3 steps. First, a given master addresses the slave on the line, and the slave acknowledges. The master then sends register read or write commands to the slave. Finally, the master terminates the transfer.
 
 \subsubsection{Provided I2C}
-A complete I2C controller is fairly complex to build, so we have provided you with a complete controller. It uses a set of ready-valid interfaces, which you should be intimately familiar with by now. 
+A complete I2C controller is fairly complex to build, so we have provided you with a complete controller. It uses a set of ready-valid interfaces, which you should be intimately familiar with by now.
 
 The I2C controller in \verb|hardware/src/video/i2c_controller.v| takes the same 50 MHz clock and reset as the CPU. \verb|i2c_divider| takes in a value to internally divide the 50 Mhz clock to the frequency of \verb|SCL|; we will tie it \verb|0x01F4| to get a 100KHz data rate.
 
-The slave device is normally 7 bits, and the register address, read data, and write data are all normally 8 bits. However, in the provided controller, these registers are 16 bits each in order to pass extra information to the I2C controller. 
+The slave device is normally 7 bits, and the register address, read data, and write data are all normally 8 bits. However, in the provided controller, these registers are 16 bits each in order to pass extra information to the I2C controller.
 
 \begin{table}[hbt]
-	\begin{center}
-		\caption{I2C Controller I/O Mapping}
-		\label{i2c_ctrl}
-		\begin{tabular}{l l l}
-			\toprule
-			\textbf{Signal} & \textbf{Function} & \textbf{Data Encoding}\\
-			\midrule
-			i2c\_divider & Clock Divider Setting & \{divisor\} \\
-			i2c\_slave\_addr\_unreg & Slave Device Address &  \{8'b0, slave address[6:0], active-low write enable\} \\
-			i2c\_reg\_addr\_unreg & Slave Register Address & \{num\_bytes[7:0], register address[7:0]\} \\
-			i2c\_wdata\_unreg & Register Write Data & \{num\_bytes[7:0], register write data[7:0]\} \\
-			i2c\_rdata & Register Read Data & {8'b0, register read data[7:0]} \\
-			i2c\_rdata\_ready, i2c\_rdata\_valid & ready-valid for read data &  \\
-			i2c\_ctrl\_ready, i2c\_ctrl\_valid & ready-valid for controller 
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{I2C Controller I/O Mapping}
+      \label{i2c_ctrl}
+      \begin{tabular}{l l l}
+          \toprule
+          \textbf{Signal} & \textbf{Function} & \textbf{Data Encoding}\\
+          \midrule
+          i2c\_divider & Clock Divider Setting & \{divisor\} \\
+          i2c\_slave\_addr\_unreg & Slave Device Address &  \{8'b0, slave address[6:0], active-low write enable\} \\
+          i2c\_reg\_addr\_unreg & Slave Register Address & \{num\_bytes[7:0], register address[7:0]\} \\
+          i2c\_wdata\_unreg & Register Write Data & \{num\_bytes[7:0], register write data[7:0]\} \\
+          i2c\_rdata & Register Read Data & {8'b0, register read data[7:0]} \\
+          i2c\_rdata\_ready, i2c\_rdata\_valid & ready-valid for read data &  \\
+          i2c\_ctrl\_ready, i2c\_ctrl\_valid & ready-valid for controller
+      \end{tabular}
+  \end{center}
 \end{table}
 
 The software will take care of writing the correct data to each register. As with the UART, the CPU simply needs access to the registers, as described in the next section. This information is provided to help with testing.
@@ -1430,41 +1429,41 @@ The software will take care of writing the correct data to each register. As wit
 
 Here is the new memory map:
 \begin{table}[H]
-	\begin{center}
-		\caption{Updated Memory Map with I2C}
-		\label{i2c_mem_map}
-		\begin{tabular}{l l l l}
-			\toprule
-			\textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
-			\midrule
-			32'h80000100 & I2C status & Read & \{30'b0, i2c\_rdata\_valid, i2c\_ctrl\_ready\} \\
-			32'h80000104 & I2C register read data  & Read & \{24'b0, i2c\_rdata\} \\
-			32'h80000108 & I2C register address & Write & \{16'b0, i2c\_reg\_addr\} \\
-			32'h8000010c & I2C register write data & Write & \{16'b0, i2c\_wdata\} \\
-			32'h80000110 & I2C slave address & Write & \{16'b0, i2c\_slave\_addr\} \\
-			32'h80000114 & I2C controller trigger & Write & Executes I2C transaction
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{Updated Memory Map with I2C}
+      \label{i2c_mem_map}
+      \begin{tabular}{l l l l}
+          \toprule
+          \textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
+          \midrule
+          32'h80000100 & I2C status & Read & \{30'b0, i2c\_rdata\_valid, i2c\_ctrl\_ready\} \\
+          32'h80000104 & I2C register read data  & Read & \{24'b0, i2c\_rdata\} \\
+          32'h80000108 & I2C register address & Write & \{16'b0, i2c\_reg\_addr\} \\
+          32'h8000010c & I2C register write data & Write & \{16'b0, i2c\_wdata\} \\
+          32'h80000110 & I2C slave address & Write & \{16'b0, i2c\_slave\_addr\} \\
+          32'h80000114 & I2C controller trigger & Write & Executes I2C transaction
+      \end{tabular}
+  \end{center}
 \end{table}
 
 You need to create registers in your CPU for \verb|i2c_reg_addr|, \verb|i2c_wdata|, and \verb|i2c_slave_addr|. You should pulse \verb|i2c_ctrl_valid| when a write is performed to the I2C control trigger address. You should pulse \verb|i2c_rdata_ready| when a read is performed from the I2C register read data address.
 
 Modify \verb|Riscv151.v| to include these memory mapped registers.
 
-We will also have to modify \verb|ml505top.v| and the UCF to include the I2C lines. Be sure the following are added to your top module and the UCF. Otherwise, run \verb|git pull staff master|. 
+We will also have to modify \verb|ml505top.v| and the UCF to include the I2C lines. Be sure the following are added to your top module and the UCF. Otherwise, run \verb|git pull staff master|.
 
 \begin{table}[hbt]
-	\begin{center}
-		\caption{Top Module Connections for I2C}
-		\label{i2c_ucf}
-		\begin{tabular}{l l l}
-			\toprule
-			\textbf{Name} & \textbf{FPGA Loc} & \textbf{IO Standard}\\
-			\midrule
-			IIC\_SCL\_VIDEO & U27  & LVCMOS18 \\
-			IIC\_SDA\_VIDEO & T29 & LVCMOS18 
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{Top Module Connections for I2C}
+      \label{i2c_ucf}
+      \begin{tabular}{l l l}
+          \toprule
+          \textbf{Name} & \textbf{FPGA Loc} & \textbf{IO Standard}\\
+          \midrule
+          IIC\_SCL\_VIDEO & U27  & LVCMOS18 \\
+          IIC\_SDA\_VIDEO & T29 & LVCMOS18
+      \end{tabular}
+  \end{center}
 \end{table}
 
 
@@ -1475,16 +1474,16 @@ The testbench files are located in \verb|hardware/src/testbenches/i2c_integratio
 
 To run the testbench,
 \begin{enumerate}
-	\item Run \verb|make| in \verb|software/i2c_integration_tb|
-	\item Run \verb|make CASES=tests/i2c_integration_testbench.do| in \verb|hardware/sim|
-	\item Observe the testbench output; it should correspond to the transactions enumerated in the software. Specifically:
-	\begin{enumerate}
-		\item An I2C read from slave 0x76, reg 0x01
-		\item An I2C write to slave 0x76, reg 0x34, data 0xfa
-		\item an I2C write to slave 0x76, reg 0x85, data 0x39
-	\end{enumerate}
-	\item Verify in Modelsim that the I2C read ended with \verb|i2c_rdata| of 0xa5 and that your CPU pulsed \verb|i2c_rdata_ready| after \verb|i2c_rdata_valid| was asserted
-	\item Verify that the slave model saw the two I2C write commands as they were written in the software
+  \item Run \verb|make| in \verb|software/i2c_integration_tb|
+  \item Run \verb|make CASES=tests/i2c_integration_testbench.do| in \verb|hardware/sim|
+  \item Observe the testbench output; it should correspond to the transactions enumerated in the software. Specifically:
+  \begin{enumerate}
+      \item An I2C read from slave 0x76, reg 0x01
+      \item An I2C write to slave 0x76, reg 0x34, data 0xfa
+      \item an I2C write to slave 0x76, reg 0x85, data 0x39
+  \end{enumerate}
+  \item Verify in Modelsim that the I2C read ended with \verb|i2c_rdata| of 0xa5 and that your CPU pulsed \verb|i2c_rdata_ready| after \verb|i2c_rdata_valid| was asserted
+  \item Verify that the slave model saw the two I2C write commands as they were written in the software
 \end{enumerate}
 
 \subsubsection{I2C Testing on the FPGA}
@@ -1501,31 +1500,31 @@ The video controller has to continuously send data to the Chrontel video chip: p
 
 To that end, we will generate a 786432x1 block RAM, where each line stores a single pixel's data. We are only use 1 bit per pixel (i.e. black or white), in the interest of keeping the FPGA design small in area, and because we have a limited amount of memory on the FPGA.
 
-Each 1-bit line of this RAM will be assigned a byte address. Each byte will be either high or low, representing a light or dark pixel. The pixels will be ordered left to right, then top to bottom. This matches the VGA pixel order. 
+Each 1-bit line of this RAM will be assigned a byte address. Each byte will be either high or low, representing a light or dark pixel. The pixels will be ordered left to right, then top to bottom. This matches the VGA pixel order.
 
 The CPU will be able to write to the frame buffer just like it writes to the data memory. Thus we need to reserve an address space for it. To make space for all 786432 pixels, we will reserve the addresses 0x90000000 through 0x900BFFFF for the frame buffer.
 
 \begin{table}[hbt]
-	\begin{center}
-		\caption{Framebuffer Memory Map Additions}
-		\label{frame_buffer}
-		\begin{tabular}{l l l l}
-			\toprule
-			\textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
-			\midrule
-			32'h900XXXXX & Frame Buffer & Write & \{31'b0, data\} \\
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{Framebuffer Memory Map Additions}
+      \label{frame_buffer}
+      \begin{tabular}{l l l l}
+          \toprule
+          \textbf{Address} & \textbf{Function} & \textbf{Access} & \textbf{Data Encoding}\\
+          \midrule
+          32'h900XXXXX & Frame Buffer & Write & \{31'b0, data\} \\
+      \end{tabular}
+  \end{center}
 \end{table}
 
 For (x, y) coordinates where $x \in {0, 1, ... 1023}$ and $y \in {0, 1, ..., 767}$ the memory address becomes \verb|0x90000000 + (y << 10) + x|. You can assume that all writes to the framebuffer will be in the form of \verb|sb| (store byte) instructions.
 
 The framebuffer's block RAM needs to be built. To do this:
 \begin{enumerate}
-	\item Go to \verb|hardware/src/video/framebuffer_ram|
-	\item Run \verb|./build|
-	\item Open up \verb|block_mem_1x786432.v| and make sure you have a dual ported block RAM that was generated
-	\item The module you should instantiate wraps the block RAM and is located in\\ \verb|hardware/src/video/frame_buffer_1_786432.v|.
+  \item Go to \verb|hardware/src/video/framebuffer_ram|
+  \item Run \verb|./build|
+  \item Open up \verb|block_mem_1x786432.v| and make sure you have a dual ported block RAM that was generated
+  \item The module you should instantiate wraps the block RAM and is located in\\ \verb|hardware/src/video/frame_buffer_1_786432.v|.
 \end{enumerate}
 
 You only need to do this once.
@@ -1535,9 +1534,9 @@ The Chrontel CH7301C DVI Transmitter Device on the ML505 board can receive digit
 
 \begin{figure}[H]
 \begin{center}
-	\includegraphics[width=6.5in]{dvi_block}
-	\caption{Chrontel chip block diagram - from datasheet}
-	\label{fig:dvi_block}
+  \includegraphics[width=6.5in]{dvi_block}
+  \caption{Chrontel chip block diagram - from datasheet}
+  \label{fig:dvi_block}
 \end{center}
 \end{figure}
 
@@ -1545,23 +1544,23 @@ The Chrontel CH7301C DVI Transmitter Device on the ML505 board can receive digit
 Just like the AC97 codec, the Chrontel video chip has many internal registers that configure how it operates. The Chrontel chip receives read and write register commands over I2C, which you tested in the previous section. Below is a reduced list of the registers to write to. See the Chrontel datasheet for more details.
 
 \begin{table}[H]
-	\begin{center}
-		\caption{Chrontel Control Registers}
-		\label{chrontel_registers}
-		\begin{tabular}{l l l l}
-			\toprule
-			\textbf{Address} & \textbf{Function} & \textbf{Default} & \textbf{Desired} \\
-			\midrule
-			8'h21 & DAC Control & 8'h00 & 8'h09 \\
-			8'h33 & Charge Pump Control & 8'hE4 & 8'h08 \\
-			8'h34 & DVI PLL Divider & 8'h16 & 8'h16 \\
-			8'h36 & DVI PLL Filter & 8'h00 & 8'h60 \\
-			8'h48 & Test Pattern & 8'h18 & 8'h19 \\
-			8'h49 & Power Management & 8'h01 & 8'hC0 \\
-			8'h56 & DVI Sync Polarity & 8'h00 & 8'h00 \\
-			8'h1F & Input Data Format & 8'h00 & 8'h83 
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{Chrontel Control Registers}
+      \label{chrontel_registers}
+      \begin{tabular}{l l l l}
+          \toprule
+          \textbf{Address} & \textbf{Function} & \textbf{Default} & \textbf{Desired} \\
+          \midrule
+          8'h21 & DAC Control & 8'h00 & 8'h09 \\
+          8'h33 & Charge Pump Control & 8'hE4 & 8'h08 \\
+          8'h34 & DVI PLL Divider & 8'h16 & 8'h16 \\
+          8'h36 & DVI PLL Filter & 8'h00 & 8'h60 \\
+          8'h48 & Test Pattern & 8'h18 & 8'h19 \\
+          8'h49 & Power Management & 8'h01 & 8'hC0 \\
+          8'h56 & DVI Sync Polarity & 8'h00 & 8'h00 \\
+          8'h1F & Input Data Format & 8'h00 & 8'h83
+      \end{tabular}
+  \end{center}
 \end{table}
 
 These registers will be set via the \verb|graphics| program; it is all done for you. The slave device address for the Chrontel chip is 0x76.
@@ -1570,17 +1569,17 @@ These registers will be set via the \verb|graphics| program; it is all done for 
 The Chrontel chip takes several inputs that represent video data. Here is a list of relevant signals (they are all outputs from the FPGA and inputs to the chip):
 
 \begin{itemize}
-	\item \textbf{DVI\_XCLK\_N, DVI\_XCLK\_P} - A differential clock input to the Chrontel chip. The chip uses this clock to sample the data lines. For achieving a 1024 x 768 resolution with a 60 Hz refresh rate, this clock is set at 65 Mhz. It is generated and driven for you in \verb|ml505top| and \verb|src/video/dvi_controller.v|.
-	
-	\item \textbf{DVI\_RESET\_B} - An active-low reset input to the Chrontel chip. This is permanently held high in our design since we will be resetting the chip over I2C rather than using this signal.
-	
-	\item \textbf{DVI\_D [11:0]} - The data bus representing the color data for a given pixel. The details on how to drive this bus can be found on page 7 and page 10 of the datasheet. We are using IDF (input data format) = 3 in our controller. This bus is latched by the chip on both the rising and falling edges of the \verb|XCLK|.
-	
-	\item \textbf{DVI\_V} - Vertical sync input to the Chrontel chip. Should be driven \underline{active-low}. Tells the chip when a new video frame is about to start.
-	
-	\item \textbf{DVI\_H} - Horizontal sync input to the Chrontel chip. Should be driven \underline{active-low}. This tells the chip when a new horizontal line is about to start.
-	
-	\item \textbf{DVI\_DE} - Data enable input to the Chrontel chip. The \verb|DVI_D| bus' data is valid for the chip to latch when this signal is asserted \underline{active-high}.
+  \item \textbf{DVI\_XCLK\_N, DVI\_XCLK\_P} - A differential clock input to the Chrontel chip. The chip uses this clock to sample the data lines. For achieving a 1024 x 768 resolution with a 60 Hz refresh rate, this clock is set at 65 Mhz. It is generated and driven for you in \verb|ml505top| and \verb|src/video/dvi_controller.v|.
+
+  \item \textbf{DVI\_RESET\_B} - An active-low reset input to the Chrontel chip. This is permanently held high in our design since we will be resetting the chip over I2C rather than using this signal.
+
+  \item \textbf{DVI\_D [11:0]} - The data bus representing the color data for a given pixel. The details on how to drive this bus can be found on page 7 and page 10 of the datasheet. We are using IDF (input data format) = 3 in our controller. This bus is latched by the chip on both the rising and falling edges of the \verb|XCLK|.
+
+  \item \textbf{DVI\_V} - Vertical sync input to the Chrontel chip. Should be driven \underline{active-low}. Tells the chip when a new video frame is about to start.
+
+  \item \textbf{DVI\_H} - Horizontal sync input to the Chrontel chip. Should be driven \underline{active-low}. This tells the chip when a new horizontal line is about to start.
+
+  \item \textbf{DVI\_DE} - Data enable input to the Chrontel chip. The \verb|DVI_D| bus' data is valid for the chip to latch when this signal is asserted \underline{active-high}.
 \end{itemize}
 
 All these signals are driven using the \verb|dvi_controller| located in \verb|src/video/dvi_controller.v|. You will develop this module in this checkpoint.
@@ -1592,9 +1591,9 @@ To send video data to the Chrontel chip, we need to strobe the \verb|DVI_V|, \ve
 
 \begin{figure}[H]
 \begin{center}
-	\includegraphics[height=4cm]{vga_overview}
-	\caption{VGA timing scheme}
-	\label{fig:vga_overview}
+  \includegraphics[height=4cm]{vga_overview}
+  \caption{VGA timing scheme}
+  \label{fig:vga_overview}
 \end{center}
 \end{figure}
 
@@ -1604,13 +1603,13 @@ For each of sync signals, there are 4 major components: the sync pulse, the back
 
 \begin{figure}[H]
 \begin{center}
-	\includegraphics[width=4in]{vga_timing}
-	\caption{VGA timing detailed}
-	\label{fig:vga_timing}
-	
-	\includegraphics[width=4in]{vga_frame}
-	\caption{VGA frame with timing}
-	\label{fig:vga_frame}
+  \includegraphics[width=4in]{vga_timing}
+  \caption{VGA timing detailed}
+  \label{fig:vga_timing}
+
+  \includegraphics[width=4in]{vga_frame}
+  \caption{VGA frame with timing}
+  \label{fig:vga_frame}
 \end{center}
 \end{figure}
 
@@ -1620,40 +1619,40 @@ Note that during the vertical sync pulse, the horizontal sync pulse should be in
 We will be using a resolution of 1024 x 768 at a 60 Hz refresh rate. This will require us to use a 65 MHz clock and the following timing parameters.
 
 \begin{table}[H]
-	\begin{center}
-		\caption{VGA Timing for 1024 x 768 at 60 Hz (XGA)}
-		\label{vga_timing_table}
-		\begin{tabular}{l l l}
-			\toprule
-			\textbf{Name} & \textbf{Pixel/Line Length} & \textbf{Real Time}\\
-			\midrule
-				  H Sync Pulse    &  136 & 2.09 us \\
-				  H Back Porch    &   160 & 2.46 us \\
-				  H Visible Area    &   1024 & 15.7 us \\
-				  H Front Porch    &   24 & 0.37 us \\
-			\midrule
-				  V Sync Pulse    &  6 & 124 us \\
-				  V Back Porch    &   29 & 600 us \\
-				  V Visible Area    &   768 & 15.9 ms \\
-				  V Front Porch    &   3 & 62 us \\
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{VGA Timing for 1024 x 768 at 60 Hz (XGA)}
+      \label{vga_timing_table}
+      \begin{tabular}{l l l}
+          \toprule
+          \textbf{Name} & \textbf{Pixel/Line Length} & \textbf{Real Time}\\
+          \midrule
+              H Sync Pulse    &  136 & 2.09 us \\
+              H Back Porch    &   160 & 2.46 us \\
+              H Visible Area    &   1024 & 15.7 us \\
+              H Front Porch    &   24 & 0.37 us \\
+          \midrule
+              V Sync Pulse    &  6 & 124 us \\
+              V Back Porch    &   29 & 600 us \\
+              V Visible Area    &   768 & 15.9 ms \\
+              V Front Porch    &   3 & 62 us \\
+      \end{tabular}
+  \end{center}
 \end{table}
 
 Here is how the sync and DE signals should be driven:
 
 \begin{enumerate}
-	\item At the start of the frame, assert \verb|DVI_V| for \verb|V Sync Pulse| horizontal lines (each horizontal line consists of 1344 pixels or clock periods)
-	\item Don't assert any signals for \verb|V Back Porch| horizontal lines
-	\item For \verb|V Visble Area| lines perform the following sequence:
-	\begin{enumerate}
-		\item Assert \verb|DVI_H| for \verb|H Sync Pulse| clock periods
-		\item Don't assert any signals for \verb|H Back Porch| clock periods
-		\item Assert \verb|DVI_DE| and place the pixel data on \verb|DVI_D[11:0]| for \verb|H Visible Area| clock periods
-		\item Don't assert any signals for \verb|H Front Porch| clock periods
-	\end{enumerate}
-	\item Don't assert any signals for \verb|V Front Porch| horizontal lines
-	\item Start again at step \#1 to send the next video frame
+  \item At the start of the frame, assert \verb|DVI_V| for \verb|V Sync Pulse| horizontal lines (each horizontal line consists of 1344 pixels or clock periods)
+  \item Don't assert any signals for \verb|V Back Porch| horizontal lines
+  \item For \verb|V Visble Area| lines perform the following sequence:
+  \begin{enumerate}
+      \item Assert \verb|DVI_H| for \verb|H Sync Pulse| clock periods
+      \item Don't assert any signals for \verb|H Back Porch| clock periods
+      \item Assert \verb|DVI_DE| and place the pixel data on \verb|DVI_D[11:0]| for \verb|H Visible Area| clock periods
+      \item Don't assert any signals for \verb|H Front Porch| clock periods
+  \end{enumerate}
+  \item Don't assert any signals for \verb|V Front Porch| horizontal lines
+  \item Start again at step \#1 to send the next video frame
 \end{enumerate}
 
 We will be using one-bit color: either black or "white". We will tint our "white" a slight blue. This implementation is simple to expand to 3-color RGB and to multi-bit RGB, with 5-bits of color each. This is not a requirement of the project, but you are welcome to try it for extra credit.
@@ -1662,25 +1661,25 @@ We will be using one-bit color: either black or "white". We will tint our "white
 The Chrontel chip supports multiple schemes for transferring color information over the 12-bit \verb|DVI_D| bus. We will be using IDF = 3 with "XCLK 1x" as listed in the datasheet. This provides us with up to 15-bit RGB color. For simplicity however, we are using only 1-bit color. We must translate our 1 bit to 15 bits. Use the following scheme. It will yield a light blue tint for "1," and black for "0."
 
 \begin{table}[hbt]
-	\begin{center}
-		\caption{Colors}
-		\label{colors}
-		\begin{tabular}{l l l l}
-			\toprule
-			\textbf{Pixel Value} & \textbf{Red} & \textbf{Green} & \textbf{Blue} \\
-			\midrule
-			1 & 5'b11000 & 5'b11000 & 5'b11111 \\
-			0 & 5'b0  & 5'b0 & 5'b0 \\
-		\end{tabular}
-	\end{center}
+  \begin{center}
+      \caption{Colors}
+      \label{colors}
+      \begin{tabular}{l l l l}
+          \toprule
+          \textbf{Pixel Value} & \textbf{Red} & \textbf{Green} & \textbf{Blue} \\
+          \midrule
+          1 & 5'b11000 & 5'b11000 & 5'b11111 \\
+          0 & 5'b0  & 5'b0 & 5'b0 \\
+      \end{tabular}
+  \end{center}
 \end{table}
 
 \begin{figure}[hbt]
 \begin{center}
-	\includegraphics[width=6.5in]{chrontel_data_timing}
-	\includegraphics[width=6.5in]{idf3}
-	\caption{Chrontel Data Timing}
-	\label{fig:chrontel_data_timing}
+  \includegraphics[width=6.5in]{chrontel_data_timing}
+  \includegraphics[width=6.5in]{idf3}
+  \caption{Chrontel Data Timing}
+  \label{fig:chrontel_data_timing}
 \end{center}
 \end{figure}
 
@@ -1710,7 +1709,7 @@ python video_data_to_images.py build/video_data.txt
 This script may take up to 30 seconds to run. Once it does you will see a folder called \verb|video_frames|. In this folder, you can run \verb|eog frame01.png| to open the image for viewing. You want to manually verify that the image looks like this:
 
 \begin{figure}[H]
-	\centerline{\includegraphics[height=4cm]{dvi_controller_testbench_output.png}}
+  \centerline{\includegraphics[height=4cm]{dvi_controller_testbench_output.png}}
 \end{figure}
 
 Each color bar should be 32-pixels high and they should alternate between light and dark. You should use the Measure tool in GIMP to verify this. Right click on the image when open in \verb|eog|, then click Open With $\rightarrow$ GIMP. In GIMP use the Measure tool (Shift + M) by clicking and dragging to verify the height of the color bars.
@@ -1719,15 +1718,15 @@ Each color bar should be 32-pixels high and they should alternate between light 
 Once your color bars look good, let's test the DVI controller and framebuffer's interaction with your CPU. The integration testbench consists of 3 files:
 
 \begin{enumerate}
-	\item \verb|hardware/src/testbenches/dvi_controller_integration_testbench.v|
-	\item \verb|hardware/sim/tests/dvi_controller_integration_testbench.do|
-	\item \verb|software/dvi_controller_testbench/dvi_controller_testbench.c|
+  \item \verb|hardware/src/testbenches/dvi_controller_integration_testbench.v|
+  \item \verb|hardware/sim/tests/dvi_controller_integration_testbench.do|
+  \item \verb|software/dvi_controller_testbench/dvi_controller_testbench.c|
 \end{enumerate}
 
 Run this testbench as usual once you have hooked up the framebuffer and DVI controller in \verb|ml505top| and to your CPU's memory map. The software running on the CPU will run a function to draw a line from the top left to bottom right of the frame. This testbench will take longer to execute than the simple block-level testbench. Once it is does, you can create an image from the \verb|video_data| and check to see if a line has been drawn by your CPU. It should look like this (might have to zoom in to see the line):
 
 \begin{figure}[H]
-	\centerline{\includegraphics[height=4cm]{dvi_controller_integration_testbench_output.png}}
+  \centerline{\includegraphics[height=4cm]{dvi_controller_integration_testbench_output.png}}
 \end{figure}
 
 \subsubsection{Testing on the FPGA!}
@@ -1737,12 +1736,12 @@ Once all these testbenches look good \verb|make| and \verb|make impact| your des
 Put the \verb|graphics| program on your FPGA using \verb|coe_to_serial| as usual. Once you \verb|jal 10006000| to it and can see the \verb|graphics >| prompt, you have access to these commands.
 
 \begin{enumerate}
-	\item \textbf{setup} - You should run this to configure the Chrontel chip over I2C
-	\item \textbf{test\_pattern} - This will configure the Chrontel chip to output a color bar test pattern over the video cable. To go back to framebuffer fetch mode run 'setup' again.
-	\item \textbf{fill} [0/1] - This will fill the framebuffer with either 0s or 1s.
-	\item \textbf{swline} [0/1] x0 y0 x1 y1 - This will draw a line of color 0 or 1 from (x0, y0) to (x1, y1) using the CPU.
-	\item \textbf{pixel} [0/1] x y - This will draw a single position at coordinate (x, y). This is useful for checking that all corners of the video frame can be written to.
-	\item \textbf{exit} - Return to BIOS.
+  \item \textbf{setup} - You should run this to configure the Chrontel chip over I2C
+  \item \textbf{test\_pattern} - This will configure the Chrontel chip to output a color bar test pattern over the video cable. To go back to framebuffer fetch mode run 'setup' again.
+  \item \textbf{fill} [0/1] - This will fill the framebuffer with either 0s or 1s.
+  \item \textbf{swline} [0/1] x0 y0 x1 y1 - This will draw a line of color 0 or 1 from (x0, y0) to (x1, y1) using the CPU.
+  \item \textbf{pixel} [0/1] x y - This will draw a single position at coordinate (x, y). This is useful for checking that all corners of the video frame can be written to.
+  \item \textbf{exit} - Return to BIOS.
 \end{enumerate}
 
 \subsubsection{AC97 Visual Piano}
@@ -1750,10 +1749,10 @@ We have written a piano program which uses the DVI controller to display a live 
 
 To use this program:
 \begin{enumerate}
-	\item Load and jal to the \verb|graphics| program. Execute the 'setup' command.
-	\item Load and jal to the \verb|ac97_piano_visual| program. Pressing a key should play a piano note through the headphone jack.
-	\item You can spin the rotary wheel to change the 'update rate/decimation factor' that's used to send the waveform to the framebuffer. Spinning the wheel left will 'zoom in' and spinning the wheel right will 'zoom out'. Pushing the wheel in will reset the 'decimation factor' to the default value.
-	\item You should be able to see how pressing a key with a higher note pitch results in a higher frequency sine waveform.
+  \item Load and jal to the \verb|graphics| program. Execute the 'setup' command.
+  \item Load and jal to the \verb|ac97_piano_visual| program. Pressing a key should play a piano note through the headphone jack.
+  \item You can spin the rotary wheel to change the 'update rate/decimation factor' that's used to send the waveform to the framebuffer. Spinning the wheel left will 'zoom in' and spinning the wheel right will 'zoom out'. Pushing the wheel in will reset the 'decimation factor' to the default value.
+  \item You should be able to see how pressing a key with a higher note pitch results in a higher frequency sine waveform.
 \end{enumerate}
 
 \subsection{Hardware Accelerated Line Drawer (Optional)}
@@ -1762,7 +1761,7 @@ This section is optional for checkpoint 3. If you choose to do it, you will be a
 \subsubsection{Line Drawing}
 We have included a skeleton accelerator in \verb|hardware/src/video/accelerator.v|. The purpose of this module is to receive a 'line draw' command from the CPU and then execute the correct pixel writes to the framebuffer to draw a line. The \verb|accelerator| should be clocked with the \verb|cpu_clk_g|.
 
-You should modify this module to implement Bresenham's Algorithm. You can find some helpful slides here: \url{https://inst.eecs.berkeley.edu/~cs150/fa10/Lab/CP3/LineDrawing.pdf}. 
+You should modify this module to implement Bresenham's Algorithm. You can find some helpful slides here: \url{https://inst.eecs.berkeley.edu/~cs150/fa10/Lab/CP3/LineDrawing.pdf}.
 
 You should implement a ready/valid interface using the \verb|RX_ready| and \verb|RX_valid| signals. When \verb|RX_valid| is pulsed by the CPU, you should register \verb|x0,y0,x1,y1,color| internally and should pull \verb|RX_ready| low until the line is written to the framebuffer.
 
@@ -1784,13 +1783,13 @@ Once your accelerator works in simulation, you should extend the \verb|graphics|
 \subsection{Checkpoint 3 Deliverables Summary}
 
 \begin{center}
-	\begin{tabular}{m{30mm} m{35mm} m{70mm}}
-		\toprule
-		\textbf{Deliverable} & \textbf{Due Date} & \textbf{Description} \\
-		\midrule
-		I2C memory map + VGA controller + line drawing accelerator & \ethernetDueDate \space - \dueDateTime & Demonstrate a working VGA color bar test. Demonstrate line or image drawing from both the CPU and the accelerator. Demonstrate the AC97 visual piano. \\
-		\bottomrule
-	\end{tabular}
+  \begin{tabular}{m{30mm} m{35mm} m{70mm}}
+      \toprule
+      \textbf{Deliverable} & \textbf{Due Date} & \textbf{Description} \\
+      \midrule
+      I2C memory map + VGA controller + line drawing accelerator & \ethernetDueDate \space - \dueDateTime & Demonstrate a working VGA color bar test. Demonstrate line or image drawing from both the CPU and the accelerator. Demonstrate the AC97 visual piano. \\
+      \bottomrule
+  \end{tabular}
 \end{center}
 
 \pagebreak
@@ -1809,21 +1808,21 @@ Your goal is to minimize the execution time of \verb|mmult|. The number of instr
 \subsection{Clock Generation Info + Changing Clock Frequency}
 Open up \verb|ml505top.v|. You will notice a top level input called \verb|USER_CLK|. This signal comes from a crystal on the ML505 board and it comes into our FPGA design. It is a 100 Mhz clock signal, which we will use to derive our CPU clock.
 
-Scrolling down a little further, you will see an instantiation of \verb|PLL_BASE|, which is a PLL (phase locked loop) primitive on the FPGA. This is a circuit that lets us create a new clock from a known clock with a user-specified multiply-divide ratio. 
+Scrolling down a little further, you will see an instantiation of \verb|PLL_BASE|, which is a PLL (phase locked loop) primitive on the FPGA. This is a circuit that lets us create a new clock from a known clock with a user-specified multiply-divide ratio.
 
 The \verb|CLKIN| input clock of the PLL. is driven by the 100 Mhz \verb|user_clk_g| (buffered \verb|USER_CLK|). The PLL multiplies the frequency of this input clock by the \verb|CLKFBOUT_MULT| parameter, which is set to 6. Thus, internally, the PLL creates a 600 Mhz clock. Then, this multiplied clock is divided by the \verb|CLKOUT0_DIVIDE| parameter. In our case, this parameter is set to \verb|600_000_000 / CPU_CLOCK_FREQ| and \verb|CPU_CLOCK_FREQ = 50_000_000|. Thus our divide parameter is 12. Finally, the multiplied and divided clock ($\times 6 \div 12 = \frac{1}{2}$) shows up at the \verb|CLKOUT0| output clock of the PLL, which is connected to \verb|cpu_clk|. The \verb|cpu_clk| is buffered and \verb|cpu_clk_g| is used in our CPU and other modules.
 
 Take a look at the \verb|CPU_CLOCK_FREQ| parameter at the top of \verb|ml505top|. This sets the clock frequency we want to synthesize from the 100 Mhz \verb|USER_CLK| to be used in the rest of our design. You can alter this parameter to change the CPU clock frequency, but it can't be set arbitrarily, and there are a few caveats. You can only set this value to an integer divisor of 600 Mhz, unless you change the multiplication parameter in the PLL. A few frequencies to try are: 60 Mhz, 75 Mhz, and 100 Mhz. You can also try frequencies in the middle and even adjust the multiply parameter for more variety.
 
 \subsection{Critical Path Identification}
-Begin by pulling the latest skeleton files from the staff repository: \verb|git pull staff master|. After running \verb|make|, your FPGA design will be placed and routed, and timing analysis will be performed to determine the critical path(s) of your design. The timing tools will automatically figure out the CPU clock timing constraint based on the multiply-divide ratio you used in your PLL. 
+Begin by pulling the latest skeleton files from the staff repository: \verb|git pull staff master|. After running \verb|make|, your FPGA design will be placed and routed, and timing analysis will be performed to determine the critical path(s) of your design. The timing tools will automatically figure out the CPU clock timing constraint based on the multiply-divide ratio you used in your PLL.
 
 To see the critical path run \verb|make report|, and click on \verb|Post-PAR Static Timing Report| in the list on the left. You are interested in the timing paths for \verb|cpu_clk_g| which is the clock used by your CPU and the rest of your design.
 
 Perform a CTRL+F on \verb|TS_cpu_clk| and you will come upon a section like this in your report:
 
 \begin{minted}[breaklines]{text}
-Timing constraint: TS_cpu_clk = PERIOD TIMEGRP "cpu_clk" TS_USER_CLK / 0.5 HIGH 
+Timing constraint: TS_cpu_clk = PERIOD TIMEGRP "cpu_clk" TS_USER_CLK / 0.5 HIGH
 50%;
 For more information, see Period Analysis in the Timing Closure User Guide (UG612).
 
@@ -1933,18 +1932,18 @@ You will turn in your project report on bCourses by the final checkoff date. The
 Here is a suggested outline and page breakdown for your report. You do not need to strictly follow this outline, it is here just to give you an idea of what we will be looking for.
 
 \begin{itemize}
-	\item \textbf{Project Functional Description and Design Requirements}. Describe the design 	objectives of your project.  You don't need to go into details about the RISC-V ISA, but you need to describe the high-level design parameters (pipeline structure, memory hierarchy, etc.) for this version of the RISC-V. ($\approx$ 0.5 page)
-	
-	\item \textbf{High-level organization}. How is your project broken down into pieces. Block diagram level-description. We are most interested in how you broke the CPU datapath and control
-	down into submodules, since the code for the later checkpoints will be pretty consistent 	across all groups. Please include an updated block diagram ($\approx$ 1 page).
-	
-	\item \textbf{Detailed Description of Sub-pieces}. Describe how your circuits work. Concentrate here on novel or non-standard circuits. Also, focus your attention on the parts of the	design that were not supplied to you by the teaching staff. For instance, describe the details of your AC97 controller, FIFOs, DVI controller, and any extra credit work. ($\approx$ 2 pages).
-	
-	\item \textbf{Status and Results}. What is working and what is not? At what frequency (50Mhz or greater) does your design run? Do certain checkpoints work at a higher clock speed while others only	run at 50 MHz? Please also provide the number of LUTs and SLICE registers used by your design, which can be found by running \verb|make report|. Also include the CPI and minimum clock period of running \verb|mmult| for the various optimizations you made to your processor. This section is particularly important for non-working designs (to help us assign partial credit). ($\approx$ 1-2 pages).
-	
-	\item \textbf{Conclusions}. What have you learned from this experience? How would you do it different next time? ($\approx$ 0.5 page).
-	
-	\item \textbf{Division of Labor. This section is mandatory. Each team member will turn in a separate document from this part only}. The submission for this document will also be on bCourses. How did you organize yourselves as a team. Exactly who did what? Did both partners contribute equally? Please note your team number next to your name at the top. ($\approx$ 0.5 page).
+  \item \textbf{Project Functional Description and Design Requirements}. Describe the design objectives of your project.  You don't need to go into details about the RISC-V ISA, but you need to describe the high-level design parameters (pipeline structure, memory hierarchy, etc.) for this version of the RISC-V. ($\approx$ 0.5 page)
+
+  \item \textbf{High-level organization}. How is your project broken down into pieces. Block diagram level-description. We are most interested in how you broke the CPU datapath and control
+  down into submodules, since the code for the later checkpoints will be pretty consistent across all groups. Please include an updated block diagram ($\approx$ 1 page).
+
+  \item \textbf{Detailed Description of Sub-pieces}. Describe how your circuits work. Concentrate here on novel or non-standard circuits. Also, focus your attention on the parts of the	design that were not supplied to you by the teaching staff. For instance, describe the details of your AC97 controller, FIFOs, DVI controller, and any extra credit work. ($\approx$ 2 pages).
+
+  \item \textbf{Status and Results}. What is working and what is not? At what frequency (50Mhz or greater) does your design run? Do certain checkpoints work at a higher clock speed while others only	run at 50 MHz? Please also provide the number of LUTs and SLICE registers used by your design, which can be found by running \verb|make report|. Also include the CPI and minimum clock period of running \verb|mmult| for the various optimizations you made to your processor. This section is particularly important for non-working designs (to help us assign partial credit). ($\approx$ 1-2 pages).
+
+  \item \textbf{Conclusions}. What have you learned from this experience? How would you do it different next time? ($\approx$ 0.5 page).
+
+  \item \textbf{Division of Labor. This section is mandatory. Each team member will turn in a separate document from this part only}. The submission for this document will also be on bCourses. How did you organize yourselves as a team. Exactly who did what? Did both partners contribute equally? Please note your team number next to your name at the top. ($\approx$ 0.5 page).
 \end{itemize}
 
 When we grade your report, we will grade for clarity, organization, and grammar. Make sure to proofread and correct mistakes before turning it in. Submit your report to the bCourses assignment. Only one partner needs to submit the shared report, while each individual will need to submit the division of labor report to a separate bCourses assignment.
@@ -1955,12 +1954,12 @@ Teams that have completed the base set of requirements are eligible to receive e
 
 The following are suggested projects that may or may not be feasible in one week.
 \begin{itemize}
-	\item Branch Predictor: Implement a two bit (or more complicated) branch predictor with a branch history table (BHT) to replace the naive 'always taken' predictor used in the project
-	\item 5-Stage Pipeline: Add more pipeline stages and push the clock frequency past 100MHz
-	\item Audio Recording: Enable capturing mic input from the AC97 controller (for undergrads)
-	\item RISC-V M Extension: Extend the processor with a hardware multiplier and divider
-	\item 3 (or more) bit color: Increase the size of the framebuffer to have control of the RGB content of each pixel
-	\item Dynamic Resolution: Allow the processor to control the output resolution of the DVI controller at runtime
+  \item Branch Predictor: Implement a two bit (or more complicated) branch predictor with a branch history table (BHT) to replace the naive 'always taken' predictor used in the project
+  \item 5-Stage Pipeline: Add more pipeline stages and push the clock frequency past 100MHz
+  \item Audio Recording: Enable capturing mic input from the AC97 controller (for undergrads)
+  \item RISC-V M Extension: Extend the processor with a hardware multiplier and divider
+  \item 3 (or more) bit color: Increase the size of the framebuffer to have control of the RGB content of each pixel
+  \item Dynamic Resolution: Allow the processor to control the output resolution of the DVI controller at runtime
 \end{itemize}
 
 When the time is right, if you are interested in implementing any of these, see the staff for more details.
@@ -1985,27 +1984,27 @@ Not included in the above tabulations are point assignments for extra credit as 
 \section{Project Timeline}
 
 \begin{table}[h!]
-	\centering
-	\begin{center}
-	\begin{tabular}{l l l}
-		\toprule
-		{Checkpoint} &{Deliverable} & {Due Date} \\
-		\midrule
-		1: RISCV151 Processor & Design Review &  \blockDiagramDueDate \space @ \dueDateTime\\
-		 & In-Lab Checkoff & \baseCPUDueDate \space @ \dueDateTime \\
-		\midrule
-		2: IO, FIFOs, AC97 Controller & In-Lab Checkoff & \audioDueDate \space @ \dueDateTime \\
-		\midrule
-		3: TBD & In-Lab Checkoff &  \ethernetDueDate \space @ \dueDateTime\\
-		\midrule
-		Final Checkoff, Extra Credit, &    In-lab Checkoff        & \finalCheckoffDueDate \space @ TBD \\
-		and Optimizations             & Github code submission    & (by appointment) \\
-		\midrule
-		Final Report                  &   bCourses submission     & \finalCheckoffDueDate \space @ 11:59pm\\
-		\bottomrule
-	\end{tabular}
-	\end{center}
-    \caption{EECS151 \currentSemester \space Project Timeline}\label{tab:master}
+  \centering
+  \begin{center}
+  \begin{tabular}{l l l}
+      \toprule
+      {Checkpoint} &{Deliverable} & {Due Date} \\
+      \midrule
+      1: RISCV151 Processor & Design Review &  \blockDiagramDueDate \space @ \dueDateTime\\
+       & In-Lab Checkoff & \baseCPUDueDate \space @ \dueDateTime \\
+      \midrule
+      2: IO, FIFOs, AC97 Controller & In-Lab Checkoff & \audioDueDate \space @ \dueDateTime \\
+      \midrule
+      3: TBD & In-Lab Checkoff &  \ethernetDueDate \space @ \dueDateTime\\
+      \midrule
+      Final Checkoff, Extra Credit, &    In-lab Checkoff        & \finalCheckoffDueDate \space @ TBD \\
+      and Optimizations             & Github code submission    & (by appointment) \\
+      \midrule
+      Final Report                  &   bCourses submission     & \finalCheckoffDueDate \space @ 11:59pm\\
+      \bottomrule
+  \end{tabular}
+  \end{center}
+  \caption{EECS151 \currentSemester \space Project Timeline}\label{tab:master}
 \end{table}
 
 \end{document}
