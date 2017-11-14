@@ -124,7 +124,7 @@ module ml505top # (
     );
 
     // AC97 Controller
-    wire sdata_out, sync, reset_b;
+    wire sdata_out, sync, reset_b, bit_clk;
     // Buffer the AC97 bit clock
     BUFG BitClockBuffer(.I(AUDIO_BIT_CLK), .O(bit_clk));
 
