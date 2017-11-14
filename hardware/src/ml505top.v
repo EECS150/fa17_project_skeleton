@@ -41,7 +41,14 @@ module ml505top # (
 
     // UART connections
     input FPGA_SERIAL_RX,
-    output FPGA_SERIAL_TX
+    output FPGA_SERIAL_TX,
+
+    // AC97 Protocol Signals
+    input AUDIO_BIT_CLK,
+    input AUDIO_SDATA_IN,
+    output AUDIO_SDATA_OUT,
+    output AUDIO_SYNC,
+    output FLASH_AUDIO_RESET_B
 );
     // Remove these lines when implementing checkpoint 2.
     assign PIEZO_SPEAKER = 1'b0;
@@ -115,6 +122,33 @@ module ml505top # (
         .rotary_event(rotary_event),
         .rotary_left(rotary_left)
     );
+
+    // AC97 Controller
+    wire sdata_out, sync, reset_b;
+    // Buffer the AC97 bit clock
+    BUFG BitClockBuffer(.I(AUDIO_BIT_CLK), .O(bit_clk));
+
+    // Route the sdata_out sdata_in, sync, and reset signals through IOBs (input/output blocks)
+    reg sdata_out_iob, sdata_in_iob, sync_iob, reset_b_iob /* synthesis iob="true" */;
+    assign AUDIO_SDATA_OUT = sdata_out_iob;
+    assign AUDIO_SYNC = sync_iob;
+    assign FLASH_AUDIO_RESET_B = reset_b_iob;
+
+    // Drive sdata_out and sync on the rising edge of the bit_clk
+    always @ (posedge bit_clk) begin
+        sdata_out_iob <= sdata_out;
+        sync_iob <= sync;
+    end
+
+    // Sample sdata_in on the falling edge of the bit_clk
+    always @ (negedge bit_clk) begin
+        sdata_in_iob <= AUDIO_SDATA_IN;
+    end
+
+    // Drive reset_b on the CPU (system) clock
+    always @ (posedge cpu_clk_g) begin
+      reset_b_iob <= reset_b;
+    end
 
     // RISC-V 151 CPU
     Riscv151 #(
