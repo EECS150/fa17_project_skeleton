@@ -1361,8 +1361,7 @@ To finish this section, you will have to write a small C program (very similar t
 \end{center}
 
 \pagebreak
-\iffalse
-\section{Checkpoint 3 - I2C Master Controller + Video Controller}
+\section{I2C Master Controller + Video Controller - Checkpoint 3}
 In checkpoint three of this project, you will implement a memory mapped I/O interface to a provided I2C master. This will give us access to all I2C devices on the FPGA, including the video controller. Writing to the video controller will allow us to display demo color bars on our VGA output.
 
 We will then build a controller module to handle the Chrontel CH7301C DVI Transmitter Device on our FPGA. This controller will supply the clock timing and logic, allowing us to produce images on our VGA output. We will also generate another block ram to serve as our frame buffer.
@@ -1723,10 +1722,10 @@ Once your color bars look good, let's test the DVI controller and framebuffer's 
   \item \verb|software/dvi_controller_testbench/dvi_controller_testbench.c|
 \end{enumerate}
 
-Run this testbench as usual once you have hooked up the framebuffer and DVI controller in \verb|ml505top| and to your CPU's memory map. The software running on the CPU will run a function to draw a line from the top left to bottom right of the frame. This testbench will take longer to execute than the simple block-level testbench. Once it is does, you can create an image from the \verb|video_data| and check to see if a line has been drawn by your CPU. It should look like this (might have to zoom in to see the line):
+Run this testbench as usual once you have hooked up the framebuffer and DVI controller in \verb|ml505top| and to your CPU's memory map. The software running on the CPU will run a function to draw a line from the top left to bottom right of the frame. This testbench will take longer to execute than the simple block-level testbench. Once it's done, you can create an image from the \verb|video_data| and check to see if a line has been drawn by your CPU. It should look like this (might have to zoom in to see the line):
 
 \begin{figure}[H]
-  \centerline{\includegraphics[height=4cm]{dvi_controller_integration_testbench_output.png}}
+  \centerline{\includegraphics[width=0.5\textwidth]{dvi_controller_integration_testbench_output.png}}
 \end{figure}
 
 \subsubsection{Testing on the FPGA!}
@@ -1793,7 +1792,6 @@ Once your accelerator works in simulation, you should extend the \verb|graphics|
 \end{center}
 
 \pagebreak
-\fi
 \section{Final Checkpoint - Optimization}
 This optimization checkpoint is lumped with the final checkpoint and the checkoff will occur at the same time. This part of the project is designed to give students freedom to implement the optimizations of their choosing to improve the performance of their processor.
 
